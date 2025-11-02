@@ -1,3 +1,5 @@
+from bookshelf.models import Book
+
 deleted_count, _ = retrieved_book.delete()
 Book.objects.all()
 
