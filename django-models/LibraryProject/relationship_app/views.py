@@ -6,7 +6,7 @@ from django.contrib.auth import login
 from .models import Library, Book, UserProfile
 from django.contrib.auth.decorators import user_passes_test # <-- REQUIRED
 from django.http import HttpResponseForbidden, HttpResponse # <-- RECOMMENDED
-from django.contrib.auth.decorators import user_passes_test, permission_required # <-- Ensure permission_required is imported
+from django.contrib.auth.decorators import permission_required, user_passes_test # <-- Ensure permission_required is imported
 
 
 # Create your views here.
