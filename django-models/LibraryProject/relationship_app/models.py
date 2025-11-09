@@ -30,7 +30,7 @@ class Book(models.Model):
 class Library(models.Model):
     name = models.CharField(max_length=100)
 #many to many field creates  a link table to  manage the relationship between Library and Book instances.
-    books = models.ManyToManyField(Book, related_name='libraries')
+    #books = models.ManyToManyField(Book, related_name='libraries')
 
     def __str__(self):
         return self.name
@@ -71,3 +71,31 @@ def save_user_profile(sender, instance, **kwargs):
 
     if hasattr(instance, 'userprofile'):
         instance.userprofile.save()
+
+
+# relationship_app/models.py
+
+#from django.db import models
+# ... (other imports and models)
+
+class Book(models.Model):
+    # ... (Existing fields like title, publication_year, author, library) ...
+    title = models.CharField(max_length=200)
+    publication_year = models.IntegerField()
+    author = models.ForeignKey('Author', on_delete=models.CASCADE)
+    #library = models.ManyToManyField('Library', related_name='books_in_library')
+
+    # --- Custom Permissions Definition ---
+    class Meta:
+        permissions = [
+            # ('code_name', 'Human readable description')
+            ("can_add_book", "Can add new book entries"),
+            ("can_change_book", "Can edit existing book entries"),
+            ("can_delete_book", "Can delete book entries"),
+        ]
+        # Ensure the table name is correctly set if you use custom database names
+        # db_table = 'relationship_app_book'
+    # -----------------------------------
+
+    def __str__(self):
+        return self.title

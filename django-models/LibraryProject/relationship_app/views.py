@@ -53,10 +53,10 @@ def register_user(request):
 
             messages.success(request, f'Account created for {username}! you can now log in.')
             return redirect('relationship_app:list_books')
-        else:
-            form = UserCreationForm()
-        context = {'form': form}
-        return render(request, 'relationship_app/register.html', context)
+    else:
+        form = UserCreationForm()
+    context = {'form': form}
+    return render(request, 'relationship_app/register.html', context)
 
 
 # relationship_app/views.py (Add these functions)
