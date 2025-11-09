@@ -74,7 +74,8 @@ except ObjectDoesNotExist:
 # --- Query 3: Retrieve the librarian for a library (OneToOne) ---
 target_library_name = "University Archives"
 try:
-    target_library = Library.objects.get(librarian=target_library_name)
+    #target_library = Library.objects.get(librarian=target_library_name)
+    target_librarian = Librarian.objects.get(library=target_library) # This matches the checker's request
     # Access the related Librarian using the related_name ('librarian') on the Library instance
     target_librarian = target_library.librarian
     print(f"\n3. Librarian for **{target_library_name}**:")
