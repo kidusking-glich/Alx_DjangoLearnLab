@@ -5,8 +5,8 @@ from django.views.generic.detail import DetailView
 from django.contrib.auth import login
 from .models import Library, Book, UserProfile
 from django.contrib.auth.decorators import user_passes_test # <-- REQUIRED
-from django.http import HttpResponseForbidden # <-- RECOMMENDED
-
+from django.http import HttpResponseForbidden, HttpResponse # <-- RECOMMENDED
+from django.contrib.auth.decorators import user_passes_test, permission_required # <-- Ensure permission_required is imported
 
 
 # Create your views here.
@@ -87,3 +87,45 @@ def librarian_view(request):
 def member_view(request):
     """View accessible only by Member users."""
     return render(request, 'relationship_app/member_view.html', {'role': 'Member'})
+
+
+# Note: The actual CRUD forms/logic are kept simple for this objective, 
+# focusing only on the permission enforcement.
+
+# --- Secured Book Management Views ---
+
+# 1. ADD BOOK (Creation)
+# Requires 'can_add_book' permission
+@permission_required('relationship_app.can_add_book', login_url='/relationship/login/')
+def add_book(request):
+    # In a real app, this would handle a BookCreationForm
+    if request.method == 'POST':
+        # Simulated success logic
+        return redirect('relationship_app:list_books')
+    
+    return HttpResponse(f"<h1>Book Add Form (Secured)</h1><p>User {request.user.username} has permission to add books.</p>")
+
+# 2. EDIT BOOK (Update)
+# Requires 'can_change_book' permission. We need a primary key (pk) for a specific book.
+@permission_required('relationship_app.can_change_book', login_url='/relationship/login/')
+def edit_book(request, pk):
+    book = get_object_or_404(Book, pk=pk)
+    # In a real app, this would handle a BookUpdateForm
+    if request.method == 'POST':
+        # Simulated success logic
+        return redirect('relationship_app:list_books')
+        
+    return HttpResponse(f"<h1>Editing Book: {book.title} (Secured)</h1><p>User {request.user.username} has permission to change books.</p>")
+
+# 3. DELETE BOOK (Deletion)
+# Requires 'can_delete_book' permission. We need a primary key (pk) for a specific book.
+@permission_required('relationship_app.can_delete_book', login_url='/relationship/login/')
+def delete_book(request, pk):
+    book = get_object_or_404(Book, pk=pk)
+    
+    if request.method == 'POST':
+        # book.delete()
+        return redirect('relationship_app:list_books')
+        
+    # Simple confirmation page for DELETE operation
+    return HttpResponse(f"<h1>Confirm Delete Book: {book.title} (Secured)</h1><p>User {request.user.username} has permission to delete books.</p>")

@@ -5,7 +5,7 @@ from django.contrib.auth import views as auth_views # Import Django's auth views
 from . import views
 from .views import list_books
 from .views import LibraryDetailView, register_user
-from .views import admin_view, librarian_view, member_view
+from .views import admin_view, librarian_view, member_view, add_book, edit_book, delete_book
 
 app_name = 'relationship_app'
 
@@ -33,4 +33,14 @@ urlpatterns = [
     path('access/admin/', admin_view, name='admin_access'),
     path('access/librarian/', librarian_view, name='librarian_access'),
     path('access/member/', member_view, name='member_access'),
+
+    # --- Secured Book Management URLs ---
+    # ADD (Create)
+    path('book/add/', add_book, name='add_book'),
+    
+    # EDIT (Update) - Requires a primary key (pk)
+    path('book/edit/<int:pk>/', edit_book, name='edit_book'),
+    
+    # DELETE (Delete) - Requires a primary key (pk)
+    path('book/delete/<int:pk>/', delete_book, name='delete_book'),
 ]
