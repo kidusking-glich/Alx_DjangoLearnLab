@@ -2,6 +2,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib import messages
 from django.views.generic.detail import DetailView
+from django.contrib.auth import login
 from .models import Library, Book
 
 
@@ -43,11 +44,14 @@ def register_user(request):
     if request.method == 'POST':
         form =UserCreationForm(request.POST)
         if form.is_valid():
-            form.save()
+            user = form.save()
             username = form.cleaned_data.get('username')
 
+            # Use the imported login function to log the user in immediately
+            login(request, user) # <-- Use the imported function here!
+
             messages.success(request, f'Account created for {username}! you can now log in.')
-            return redirect('relationship_app:login')
+            return redirect('relationship_app:list_books')
         else:
             form = UserCreationForm()
         context = {'form': form}
