@@ -5,13 +5,14 @@ from django.contrib.auth import views as auth_views # Import Django's auth views
 from . import views
 from .views import list_books
 from .views import LibraryDetailView, register_user
+from .views import admin_view, librarian_view, member_view
 
 app_name = 'relationship_app'
 
 urlpatterns = [
     # Function-based View (FBV) URL
     # URL: /relationship/books/
-    path('books/', views.list_all_books, name='list_books'),
+    path('books/', views.list_books, name='list_books'),
     
     # Class-based View (CBV) URL
     # URL: /relationship/library/1/ (where 1 is the primary key of the Library)
@@ -27,4 +28,9 @@ urlpatterns = [
     
     # 3. Logout (Built-in View) - Uses the provided 'logout.html' template
     path('logout/', auth_views.LogoutView.as_view(template_name='relationship_app/logout.html'), name='logout'),
+
+    # --- New Role-Based Access URLs ---
+    path('access/admin/', admin_view, name='admin_access'),
+    path('access/librarian/', librarian_view, name='librarian_access'),
+    path('access/member/', member_view, name='member_access'),
 ]

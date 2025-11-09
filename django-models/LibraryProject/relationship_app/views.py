@@ -3,14 +3,15 @@ from django.contrib.auth.forms import UserCreationForm
 from django.contrib import messages
 from django.views.generic.detail import DetailView
 from django.contrib.auth import login
-from .models import Library, Book
-
+from .models import Library, Book, UserProfile
+from django.contrib.auth.decorators import user_passes_test # <-- REQUIRED
+from django.http import HttpResponseForbidden # <-- RECOMMENDED
 
 
 
 # Create your views here.
 # --- 1. Function-based View (FBV): List all books ---
-def list_all_books(request):
+def list_books(request):
     # Retrieve all Book objects, pre-fetching the author to optimize queries
     all_books = Book.objects.all() # <-- The line the checker is looking for
     context = {
@@ -56,3 +57,33 @@ def register_user(request):
             form = UserCreationForm()
         context = {'form': form}
         return render(request, 'relationship_app/register.html', context)
+
+
+# relationship_app/views.py (Add these functions)
+
+def is_admin(user):
+    return user.is_authenticated and hasattr(user, 'userprofile') and user.userprofile.role == 'ADMIN'
+
+def is_librarian(user):
+    return user.is_authenticated and hasattr(user, 'userprofile') and user.userprofile.role == 'LIBRARIAN'
+
+def is_member(user):
+    return user.is_authenticated and hasattr(user, 'userprofile') and user.userprofile.role == 'MEMBER'
+
+
+# relationship_app/views.py (Add these functions)
+
+@user_passes_test(is_admin, login_url='/relationship/login/', redirect_field_name=None)
+def admin_view(request):
+    """View accessible only by Admin users."""
+    return render(request, 'relationship_app/admin_view.html', {'role': 'Admin'})
+
+@user_passes_test(is_librarian, login_url='/relationship/login/', redirect_field_name=None)
+def librarian_view(request):
+    """View accessible only by Librarian users."""
+    return render(request, 'relationship_app/librarian_view.html', {'role': 'Librarian'})
+
+@user_passes_test(is_member, login_url='/relationship/login/', redirect_field_name=None)
+def member_view(request):
+    """View accessible only by Member users."""
+    return render(request, 'relationship_app/member_view.html', {'role': 'Member'})
