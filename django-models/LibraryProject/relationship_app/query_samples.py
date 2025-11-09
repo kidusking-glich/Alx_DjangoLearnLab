@@ -45,16 +45,17 @@ librarian2, created = Librarian.objects.get_or_create(name="Bob Johnson", librar
 print("\n--- Sample Queries ---")
 
 # --- Query 1: Query all books by a specific author (ForeignKey/One-to-Many) ---
-target_author_name = "Harper Lee"
+author_name = "Harper Lee"
 try:
     # Use the related_name ('books') on the Author model for reverse lookup
-    target_author = Author.objects.get(name=target_author_name)
-    author_books = target_author.books.all()
-    print(f"1. Books by **{target_author_name}**:")
+    author = Author.objects.get(name=author_name)
+    author_books = Book.objects.filter(author=author)
+    #author_books = target_author.books.all()
+    print(f"1. Books by **{author_name}**:")
     for book in author_books:
         print(f"   - {book.title}")
 except ObjectDoesNotExist:
-    print(f"1. Author '{target_author_name}' not found.")
+    print(f"1. Author '{author_name}' not found.")
 
 
 # --- Query 2: List all books in a library (ManyToMany) ---
