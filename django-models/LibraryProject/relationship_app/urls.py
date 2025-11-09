@@ -43,4 +43,5 @@ urlpatterns = [
     
     # DELETE (Delete) - Requires a primary key (pk)
     path('book/delete/<int:pk>/', delete_book, name='delete_book'),
+    path('add_book/', 'edit_book/')
 ]
