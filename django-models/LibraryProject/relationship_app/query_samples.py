@@ -58,16 +58,16 @@ except ObjectDoesNotExist:
 
 
 # --- Query 2: List all books in a library (ManyToMany) ---
-target_library_name = "City Central Library"
+library_name = "City Central Library"
 try:
-    target_library = Library.objects.get(name=target_library_name)
+    target_library = Library.objects.get(name=library_name)
     # Access the books through the ManyToMany field
     library_books = target_library.books.all()
-    print(f"\n2. Books in **{target_library_name}**:")
+    print(f"\n2. Books in **{library_name}**:")
     for book in library_books:
         print(f"   - {book.title}")
 except ObjectDoesNotExist:
-    print(f"2. Library '{target_library_name}' not found.")
+    print(f"2. Library '{library_name}' not found.")
 
 
 # --- Query 3: Retrieve the librarian for a library (OneToOne) ---
