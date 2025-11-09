@@ -1,6 +1,9 @@
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib.auth.forms import UserCreationForm
+from django.contrib import messages
 from django.views.generic.detail import DetailView
 from .models import Library, Book
+
 
 
 
@@ -32,3 +35,20 @@ class LibraryDetailView(DetailView):
         return Library.objects.prefetch_related('books__author')
                  
     # Note: DetailView automatically uses the 'pk' passed in the URL to find the object.                               )
+
+# --- 3. Function-based View (FBV): User Registration ---
+
+def register_user(request):
+
+    if request.method == 'POST':
+        form =UserCreationForm(request.POST)
+        if form.is_valid():
+            form.save()
+            username = form.cleaned_data.get('username')
+
+            messages.success(request, f'Account created for {username}! you can now log in.')
+            return redirect('relationship_app:login')
+        else:
+            form = UserCreationForm()
+        context = {'form': form}
+        return render(request, 'relationship_app/register.html', context)

@@ -28,7 +28,10 @@ DEBUG = True
 ALLOWED_HOSTS = []
 
 
+# LibraryProject/settings.py
+LOGIN_REDIRECT_URL = '/relationship/books/'
 # Application definition
+
 
 INSTALLED_APPS = [
     'django.contrib.admin',
