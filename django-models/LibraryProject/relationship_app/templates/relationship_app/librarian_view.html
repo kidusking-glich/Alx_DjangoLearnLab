@@ -1,0 +1,13 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{{ role }} Access</title>
+</head>
+<body>
+    <h1>Welcome, {{ request.user.username }}!</h1>
+    <h2>This is the {{ role }} Workstation.</h2>
+    <p>You have permissions to manage books and checkouts.</p>
+    <a href="{% url 'relationship_app:logout' %}">Logout</a>
+</body>
+</html>
