@@ -23,9 +23,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-!*ol=)7e(*vr$stcs$4vbzg7+k++=wjo%31ar!)q&^d0h7+yd6'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False # Must be False in production
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['127.0.0.1', 'localhost']
 
 AUTH_USER_MODEL = 'relationship_app.CustomUser'
 AUTH_USER_MODEL = 'bookshelf.CustomUser'
@@ -135,3 +135,33 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+
+# 2. Cookie Security (Requires HTTPS)
+# Ensures session cookies are only sent over HTTPS connections
+SESSION_COOKIE_SECURE = True 
+# Ensures CSRF cookies are only sent over HTTPS connections
+CSRF_COOKIE_SECURE = True 
+
+# 3. Browser-Side Protections
+# Prevents embedding of the site in a frame/iframe (protection against clickjacking)
+X_FRAME_OPTIONS = 'DENY' 
+# Tells the browser not to execute scripts injected by an XSS attack
+SECURE_BROWSER_XSS_FILTER = True 
+# Prevents the browser from MIME-sniffing content type (mitigates XSS)
+SECURE_CONTENT_TYPE_NOSNIFF = True
+
+# 4. HTTPS/HSTS (Highly Recommended)
+# Forces redirects to HTTPS (requires a web server setting too)
+SECURE_SSL_REDIRECT = True 
+# Sets HTTP Strict Transport Security (HSTS) max age (e.g., one year)
+SECURE_HSTS_SECONDS = 31536000 
+# SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+# SECURE_HSTS_PRELOAD = True
+
+# 5. Content Security Policy (For Step 4)
+# Note: You need to install django-csp first: pip install django-csp
+CSP_DEFAULT_SRC = ("'self'",)
+CSP_SCRIPT_SRC = ("'self'", "https://stackpath.bootstrapcdn.com",)
+CSP_STYLE_SRC = ("'self'", "https://stackpath.bootstrapcdn.com",)
+CSP_IMG_SRC = ("'self'", "data:",)
