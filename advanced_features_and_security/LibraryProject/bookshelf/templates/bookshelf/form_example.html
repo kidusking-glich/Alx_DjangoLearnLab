@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Example Form</title>
+</head>
+<body>
+    <h2>Secure User Input Form</h2>
+    
+    <form method="post" action="">
+        
+        {% csrf_token %} 
+        
+        {{ form.as_p }}
+        
+        <button type="submit">Submit Securely</button>
+    </form>
+    
+    {% if messages %}
+    <ul class="messages">
+            {% for message in messages %}
+                <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+            {% endfor %}
+        </ul>
+    {% endif %}
+
+</body>
+</html>
