@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from LibraryProject.relationship_app.admin import CustomeUserAdmin
+from LibraryProject.relationship_app.admin import CustomeUserAdmin, UserAdmin
 from .models import Book, CustomUser
 
 
@@ -23,3 +23,12 @@ class BookAdmin(admin.ModelAdmin):
 
 admin.site.register(Book, BookAdmin)
 admin.site.register(CustomUser, CustomeUserAdmin)
+
+
+class CustomUserAdmin(UserAdmin):
+    fieldsets = UserAdmin.fieldsets + (
+        (None, {'fields': ('date_of_birth', 'profile_photo')}),
+    )
+    list_display = ('username', 'email', 'first_name', 'last_name', 'is_staff', 'date_of_birth')
+
+admin.site.register(CustomUser, CustomUserAdmin) 

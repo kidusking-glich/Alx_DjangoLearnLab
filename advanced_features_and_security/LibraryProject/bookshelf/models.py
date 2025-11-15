@@ -1,4 +1,8 @@
 from django.db import models
+from django.contrib.auth.models import AbstractUser
+from django.contrib.auth.models import BaseUserManager
+from django.db import models
+# ... (CustomUserManager class is defined above) ...
 
 class Book(models.Model):
     title = models.CharField(max_length = 200)
@@ -11,10 +15,7 @@ class Book(models.Model):
 # Create your models here.
 # relationship_app/models.py
 
-from django.contrib.auth.models import AbstractUser
-from django.contrib.auth.models import BaseUserManager
-from django.db import models
-# ... (CustomUserManager class is defined above) ...
+
 
 class CustomUser(AbstractUser):
     # Additional fields
@@ -49,3 +50,6 @@ class CustomUserManager(BaseUserManager):
             raise ValueError('Superuser must have is_superuser=True.') # Check for the corrected spelling!
 
         return self.create_user(username, email, password, **extra_fields)
+class UserProfile(models.Model):
+    # This must now link to the CustomUser in the current app
+    user = models.OneToOneField(CustomUser, on_delete=models.CASCADE)
