@@ -9,3 +9,19 @@ class Book(models.Model):
         return f'"{self.title}" by {self.author} ({self.publication_year})'
 
 # Create your models here.
+# relationship_app/models.py
+
+from django.contrib.auth.models import AbstractUser
+from django.db import models
+# ... (CustomUserManager class is defined above) ...
+
+class CustomUser(AbstractUser):
+    # Additional fields
+    date_of_birth = models.DateField(null=True, blank=True)
+    profile_photo = models.ImageField(upload_to='profile_photos/', null=True, blank=True)
+    
+    # Custom Manager:
+    # objects = CustomUserManager() # or BaseUserManager if you skipped the custom one
+
+    def __str__(self):
+        return self.username
