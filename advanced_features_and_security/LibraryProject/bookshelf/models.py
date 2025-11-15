@@ -11,6 +11,25 @@ class Book(models.Model):
 
     def __str__(self):
         return f'"{self.title}" by {self.author} ({self.publication_year})'
+    
+
+    # --- Custom Permissions Definition ---
+    class Meta:
+        # Define the custom permissions using the required variable names
+        permissions = [
+            ("can_view", "Can view book entries"),
+            ("can_create", "Can create new book entries"),
+            ("can_edit", "Can edit existing book entries"),
+            ("can_delete", "Can delete book entries"),
+        ]
+        # Optional: Set a verbose name for the model
+        verbose_name = "Book"
+    # -----------------------------------
+
+    def __str__(self):
+        return self.title
+
+# ... (rest of the models)
 
 # Create your models here.
 # relationship_app/models.py
