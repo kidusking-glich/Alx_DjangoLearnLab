@@ -25,3 +25,14 @@ class CustomUser(AbstractUser):
 
     def __str__(self):
         return self.username
+    
+class CustomUserManager(BaseUserManager):
+
+    def create_user(self, username, email, password = None, **extra_fields):
+        if not email:
+            raise ValueError('The Email field must be set')
+        email= self.normalize_email(email)
+        user = self.models(username = username, email =email, **extra_fields)
+        user.set_password(password)
+        user.save(using = self._db)
+        return user
