@@ -1,5 +1,7 @@
 from django.contrib import admin
-from .models import Book
+
+from LibraryProject.relationship_app.admin import CustomeUserAdmin
+from .models import Book, CustomUser
 
 
 # Register your models here.
@@ -20,3 +22,4 @@ class BookAdmin(admin.ModelAdmin):
     list_display_links = ('title',)
 
 admin.site.register(Book, BookAdmin)
+admin.site.register(CustomUser, CustomeUserAdmin)
