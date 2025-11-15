@@ -28,6 +28,7 @@ DEBUG = True
 ALLOWED_HOSTS = []
 
 AUTH_USER_MODEL = 'relationship_app.CustomUser'
+AUTH_USER_MODEL = 'bookshelf.CustomUser'
 # LibraryProject/settings.py
 LOGIN_REDIRECT_URL = '/relationship/books/'
 # Application definition
