@@ -81,7 +81,7 @@ WSGI_APPLICATION = 'LibraryProject.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'Book_Store',      # **REQUIRED: Replace with your actual DB name**
+        'NAME': 'Custom',      # **REQUIRED: Replace with your actual DB name**Book_Store
         'USER': 'root',           # e.g., 'root'
         'PASSWORD': 'Root1234',       # **REQUIRED: Replace with your actual password**
         'HOST': '127.0.0.1',
