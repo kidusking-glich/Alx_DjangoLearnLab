@@ -27,6 +27,12 @@ DEBUG = False # Must be False in production
 
 ALLOWED_HOSTS = ['127.0.0.1', 'localhost']
 
+# --- PROXY/SSL Configuration for Production ---
+# Required when running Django behind a reverse proxy (like Nginx) 
+# that terminates SSL/TLS (HTTPS). It tells Django to trust the X-Forwarded-Proto 
+# header set by the proxy to determine if the request was secure (https).
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+
 AUTH_USER_MODEL = 'relationship_app.CustomUser'
 AUTH_USER_MODEL = 'bookshelf.CustomUser'
 # LibraryProject/settings.py
