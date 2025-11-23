@@ -38,10 +38,7 @@ INSTALLED_APPS = [
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
-    'django.contrib.staticfiles',
-    'api',
-    'rest_framework',
-    
+    'django.contrib.staticfiles',    
 ]
 
 MIDDLEWARE = [
@@ -79,8 +76,12 @@ WSGI_APPLICATION = 'api_project.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'Book_Store',  # Replace with your database name
+        'USER': 'root',        # Replace with your MySQL username
+        'PASSWORD': 'Root1234',    # Replace with your MySQL password
+        'HOST': 'localhost',            # Or the IP address of your MySQL server
+        'PORT': '3306',                 # Default MySQL port
     }
 }
 
