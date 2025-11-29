@@ -1,5 +1,5 @@
 
-from rest_framework.permissions import IsAuthenticatedOrReadOnly, IsAdminUser 
+from rest_framework.permissions import IsAuthenticatedOrReadOnly, IsAuthenticated, IsAdminUser 
 
 from rest_framework import generics
 from rest_framework import mixins
