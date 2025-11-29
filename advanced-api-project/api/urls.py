@@ -20,6 +20,9 @@ urlpatterns = [
     path('books/<int:pk>/', BookDetailAPIView.as_view(), name='book-detail'),
     path('books/<int:pk>/update/', BookUpdateAPIView.as_view(), name='book-update'),
     path('books/<int:pk>/delete/', BookDestroyAPIView.as_view(), name='book-delete'),
+
+    path('books/update/', BookUpdateAPIView.as_view(), name='book-update'),
+    path('books/delete/', BookDestroyAPIView.as_view(), name='book-delete'),
 ]
 
 
