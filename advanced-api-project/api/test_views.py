@@ -10,6 +10,20 @@ class BookAPITests(APITestCase):
     """
     Comprehensive tests for the Book model's generic API endpoints.
     """
+
+    # ... (imports and setUp method)
+
+    def test_create_book_authenticated(self):
+        """Ensure authenticated users can create a new book (CreateView)."""
+        # ✅ Using force_authenticate for DRF API testing
+        self.client.force_authenticate(user=self.user) 
+        initial_book_count = Book.objects.count()
+        response = self.client.post(self.list_create_url, self.valid_payload, format='json')
+        
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(Book.objects.count(), initial_book_count + 1)
+        
+# ... (other tests follow the same pattern)
     def setUp(self):
         # 1. Create a non-admin user for authenticated access tests
         self.user = User.objects.create_user(username='tester', password='testpassword')
