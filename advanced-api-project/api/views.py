@@ -6,6 +6,9 @@ from rest_framework import mixins
 # ✅ CRITICAL: Importing the necessary permission classes
 from .models import Book
 from .serializers import BookSerializer
+from rest_framework import filters # Import DRF's built-in filter
+from django_filters.rest_framework import DjangoFilterBackend # Import the Django Filter backend
+from .filters import BookFilter # Import the custom filter set
 
 # --- BookListCreateView (Handles List and Create - ListView & CreateView) ---
 class BookListCreateView(mixins.ListModelMixin,
@@ -23,6 +26,37 @@ class BookListCreateView(mixins.ListModelMixin,
     
     # Step 4: Applying Permissions
     permission_classes = [IsAuthenticatedOrReadOnly] 
+    # ✅ Step 1, 2, 3: Configure Filter Backends
+    filter_backends = [
+        DjangoFilterBackend,     # Handles precise field filtering (Step 1)
+        filters.SearchFilter,    # Handles keyword searching (Step 2)
+        filters.OrderingFilter   # Handles sorting (Step 3)
+    ]
+
+    # ✅ Step 1: DjangoFilterBackend Configuration
+    # Specifies the filter class to use for precise field-based filtering
+    filterset_class = BookFilter
+
+    # ✅ Step 2: SearchFilter Configuration
+    # Specifies the fields that can be searched using the '?search=' query parameter
+    search_fields = ['title', 'author', 'isbn'] 
+
+    # ✅ Step 3: OrderingFilter Configuration
+    # Specifies the fields that can be used for sorting using the '?ordering=' parameter
+    ordering_fields = ['title', 'publication_year', 'author']
+    # Optional: Set a default ordering
+    ordering = ['title'] 
+    
+    # ListView implementation
+    def get(self, request, *args, **kwargs):
+        # The list mixin automatically applies the configured filter_backends
+        return self.list(request, *args, **kwargs)
+
+    # CreateView implementation (POST)
+    def post(self, request, *args, **kwargs):
+        return self.create(request, *args, **kwargs)
+
+# ... (BookRetrieveUpdateDestroyView remains unchanged)
     
     def get(self, request, *args, **kwargs):
         return self.list(request, *args, **kwargs)
