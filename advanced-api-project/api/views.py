@@ -9,6 +9,7 @@ from .serializers import BookSerializer
 from rest_framework import filters # Import DRF's built-in filter
 from django_filters.rest_framework import DjangoFilterBackend # Import the Django Filter backend
 from .filters import BookFilter # Import the custom filter set
+from django_filters import rest_framework
 
 # --- BookListCreateView (Handles List and Create - ListView & CreateView) ---
 class BookListCreateView(mixins.ListModelMixin,
