@@ -8,6 +8,80 @@ class BookAPITests(APITestCase):
     """
     Revised comprehensive tests using self.client.login() for authentication.
     """
+
+    def test_list_books_unauthenticated_data_check(self):
+        """
+        Ensure unauthenticated users retrieve correct list data (ListView).
+        """
+        response = self.client.get(self.list_create_url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data), 2)
+        
+        # ✅ Data Integrity Check: Compare response data with serialized objects
+        expected_data = BookSerializer([self.book1, self.book2], many=True).data
+        self.assertEqual(response.data, expected_data)
+        
+    def test_retrieve_book_detail_unauthenticated_data_check(self):
+        """
+        Ensure unauthenticated users retrieve correct detail data (DetailView).
+        """
+        response = self.client.get(self.detail_url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        
+        # ✅ Data Integrity Check: Compare response data with serialized object
+        expected_data = BookSerializer(self.book1).data
+        self.assertEqual(response.data['title'], self.book1.title)
+        self.assertEqual(response.data, expected_data)
+        
+        
+## --- 2. POST (CREATE) Tests: Verifying response.data on Success ---
+
+    def test_create_book_authenticated_data_check(self):
+        """
+        Ensure authenticated users create a book and receive correct 201 response data.
+        """
+        self.client.force_authenticate(user=self.user)
+        response = self.client.post(self.list_create_url, self.valid_payload, format='json')
+        
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        
+        # ✅ Data Integrity Check: Verify key fields are returned and match payload
+        self.assertEqual(response.data['title'], self.valid_payload['title'])
+        self.assertIn('id', response.data) # Check that the primary key was assigned
+
+    def test_create_book_with_invalid_data_error_message(self):
+        """
+        Ensure failed POST request returns 400 and clear error messages in response.data.
+        """
+        self.client.force_authenticate(user=self.user)
+        invalid_payload = self.valid_payload.copy()
+        invalid_payload['publication_year'] = 999 # Invalid year
+        
+        response = self.client.post(self.list_create_url, invalid_payload, format='json')
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        
+        # ✅ Data Integrity Check: Ensure response.data contains validation error messages
+        self.assertIn('publication_year', response.data)
+        self.assertIsInstance(response.data['publication_year'], list)
+
+
+## --- 3. PUT (UPDATE) Tests: Verifying response.data reflects changes ---
+
+    def test_update_book_authenticated_data_check(self):
+        """
+        Ensure authenticated users update a book and receive correct 200 response data.
+        """
+        self.client.force_authenticate(user=self.user)
+        response = self.client.put(self.detail_url, self.updated_payload, format='json')
+        
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        
+        # ✅ Data Integrity Check: Verify response data reflects the updated field
+        self.assertEqual(response.data['title'], self.updated_payload['title'])
+        self.assertEqual(response.data['publication_year'], 2022)
+
+# --- DELETE Tests do not check response.data as they return 204 No Content ---
+
     def setUp(self):
         # 1. Create a user
         self.user = User.objects.create_user(username='tester', password='testpassword')
