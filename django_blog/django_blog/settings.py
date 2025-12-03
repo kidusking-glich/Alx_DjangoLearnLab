@@ -60,6 +60,7 @@ TEMPLATES = [
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
+                'django.template.context_processors.debug',
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
@@ -131,6 +132,7 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # django_blog/settings.py (at the end)
 import os
+from pathlib import Path
 
 # Base directory for the project
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -138,11 +140,17 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # --- TEMPLATE CONFIGURATION ---
 TEMPLATES = [
     {
-        # ... other settings
-        'DIRS': [os.path.join(BASE_DIR, 'templates')], # Project-level templates (optional but good practice)
-        # ... other settings
-        'APP_DIRS': True, # Tells Django to look for templates in app directories (like blog/templates)
-        # ... other settings
+        'BACKEND': 'django.template.backends.django.DjangoTemplates',
+        'DIRS': [os.path.join(BASE_DIR, 'templates')], # Project-level template path
+        'APP_DIRS': True,
+        'OPTIONS': {
+            'context_processors': [
+                'django.template.context_processors.debug',
+                'django.template.context_processors.request',
+                'django.contrib.auth.context_processors.auth',
+                'django.contrib.messages.context_processors.messages',
+            ],
+        },
     },
 ]
 
