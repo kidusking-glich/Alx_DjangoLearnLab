@@ -12,7 +12,7 @@ class Post(models.Model):
     # ForeignKey to User model (built-in Django Auth)
     # on_delete=models.CASCADE means if the User is deleted, 
     # their posts are also deleted.
-    author = models.ForeignKey(User, on-on_delete=models.CASCADE)
+    author = models.ForeignKey(User, on_delete=models.CASCADE)
 
     def __str__(self):
         """

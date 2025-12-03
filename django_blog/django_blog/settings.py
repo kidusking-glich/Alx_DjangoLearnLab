@@ -122,3 +122,30 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+
+# django_blog/settings.py (at the end)
+import os
+
+# Base directory for the project
+BASE_DIR = Path(__file__).resolve().parent.parent
+
+# --- TEMPLATE CONFIGURATION ---
+TEMPLATES = [
+    {
+        # ... other settings
+        'DIRS': [os.path.join(BASE_DIR, 'templates')], # Project-level templates (optional but good practice)
+        # ... other settings
+        'APP_DIRS': True, # Tells Django to look for templates in app directories (like blog/templates)
+        # ... other settings
+    },
+]
+
+
+# --- STATIC FILE CONFIGURATION ---
+STATIC_URL = 'static/'
+
+# You may also want to set STATICFILES_DIRS if you have project-level static files:
+# STATICFILES_DIRS = [
+#     os.path.join(BASE_DIR, 'static'),
+# ]
