@@ -14,7 +14,7 @@ class CustomUserCreationForm(UserCreationForm):
 
     class Meta(UserCreationForm.Meta):
         model =User
-        fields = UserCreationForm.Meta.fields + ('email')
+        fields = UserCreationForm.Meta.fields + ('email',)
 # --- Profile Edit Form ---
 class ProfileEditForm(forms.ModelForm):
     """
