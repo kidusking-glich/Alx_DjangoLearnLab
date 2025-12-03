@@ -1,0 +1,22 @@
+{% extends 'blog/base.html' %}
+
+{% block title %}Profile Management{% endblock %}
+
+{% block content %}
+<h2>User Profile: {{ user.username }}</h2>
+
+<h3>Update Details</h3>
+<form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">Save Changes</button>
+</form>
+
+<p>
+    <small>
+        Note: Password changes are handled separately for security purposes.
+        If you need to change your password, you would implement Django's 
+        password change views.
+    </small>
+</p>
+{% endblock %}
