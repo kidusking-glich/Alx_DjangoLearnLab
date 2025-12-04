@@ -19,3 +19,23 @@ class Post(models.Model):
         Returns a string representation of the model (the post's title).
         """
         return self.title
+    # Helper method to get the URL for the detail view
+    def get_absolute_url(self):
+        from django.urls import reverse
+        return reverse('blog:post_detail', kwargs={'pk': self.pk})
+
+class Comment(models.Model):
+    """
+    Represents a comment made on a Post.
+    """
+    post = models.ForeignKey(Post, on_delete=models.CASCADE, related_name='comments')
+    author = models.ForeignKey(User, on_delete=models.CASCADE)
+    content = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['created_at'] # Display newest comments last
+
+    def __str__(self):
+        return f'Comment by {self.author.username} on {self.post.title[:20]}'
