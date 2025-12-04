@@ -20,5 +20,50 @@
             </div>
         {% endif %}
     </article>
+
+    <hr>
+
+    {# --- Comment Section --- #}
+    <section class="comments-section">
+        <h3>Comments ({{ comments|length }})</h3>
+
+        {# --- Comment Form (for Creation) --- #}
+        {% if user.is_authenticated %}
+            <div class="comment-form-container">
+                <h4>Leave a Comment</h4>
+                <form method="post" action="{% url 'blog:add_comment' pk=post.pk %}">
+                    {% csrf_token %}
+                    {{ comment_form.as_p }}
+                    <button type="submit" class="btn-primary">Post Comment</button>
+                </form>
+            </div>
+        {% else %}
+            <p class="login-prompt">Please <a href="{% url 'blog:login' %}">log in</a> to post a comment.</p>
+        {% endif %}
+
+        {# --- Comment List --- #}
+        <div class="comment-list">
+            {% for comment in comments %}
+                <div class="comment-item">
+                    <p class="comment-author">
+                        <strong>{{ comment.author.username }}</strong> 
+                        <span class="comment-date"> | {{ comment.created_at|date:"M j, H:i" }}</span>
+                    </p>
+                    <p class="comment-content">{{ comment.content|linebreaksbr }}</p>
+                    
+                    {# --- Edit/Delete Options for Comment Author --- #}
+                    {% if user.is_authenticated and user.id == comment.author.id %}
+                        <div class="comment-actions">
+                            <a href="{% url 'blog:comment_edit' pk=comment.pk %}">Edit</a> | 
+                            <a href="{% url 'blog:comment_delete' pk=comment.pk %}">Delete</a>
+                        </div>
+                    {% endif %}
+                </div>
+            {% empty %}
+                <p>No comments yet. Be the first to start the discussion!</p>
+            {% endfor %}
+        </div>
+    </section>
+
     <p><a href="{% url 'blog:post_list' %}">← Back to Post List</a></p>
 {% endblock %}
