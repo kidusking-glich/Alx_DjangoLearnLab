@@ -11,7 +11,7 @@ urlpatterns = [
     path('', PostListView.as_view(), name='post_list'),
     path('post/<int:pk>/', PostDetailView.as_view(), name='post_detail'),
     path('post/new/', PostCreateView.as_view(), name='post_create'),
-    path('post/<int:pk>/edit/', PostUpdateView.as_view(), name='post_edit'),
+    # path('post/<int:pk>/edit/', PostUpdateView.as_view(), name='post_edit'),
     path('post/<int:pk>/delete/', PostDeleteView.as_view(), name='post_delete'),
     # --- Custom Auth Views ---
     path('register/', views.register, name='register'),
@@ -23,6 +23,7 @@ urlpatterns = [
     
     # Logout uses the default view, but we specify a redirect URL after logout
     path('logout/', auth_views.LogoutView.as_view(next_page='/'), name='logout'), 
+    path('post/<int:pk>/update/', PostUpdateView.as_view(), name='post_update'),
 
     # Example: Base path for the blog (e.g., list of posts)
     # path('', views.post_list, name='post_list'),
