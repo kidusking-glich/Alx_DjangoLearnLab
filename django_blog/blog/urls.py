@@ -1,11 +1,18 @@
 from django.urls import path
 from django.contrib.auth import views as auth_views # Built-in Auth Views
 from . import views
+from .views import PostListView, PostDetailView, PostCreateView, PostUpdateView, PostDeleteView
 
 # Set application namespace
 app_name = 'blog'
 
 urlpatterns = [
+    # --- Blog Post CRUD URLs ---
+    path('', PostListView.as_view(), name='post_list'),
+    path('post/<int:pk>/', PostDetailView.as_view(), name='post_detail'),
+    path('post/new/', PostCreateView.as_view(), name='post_create'),
+    path('post/<int:pk>/edit/', PostUpdateView.as_view(), name='post_edit'),
+    path('post/<int:pk>/delete/', PostDeleteView.as_view(), name='post_delete'),
     # --- Custom Auth Views ---
     path('register/', views.register, name='register'),
     path('profile/', views.profile, name='profile'),
