@@ -1,7 +1,7 @@
 from django.urls import path
 from django.contrib.auth import views as auth_views # Built-in Auth Views
 from . import views
-from .views import CommentCreateView, PostListView, PostDetailView, PostCreateView, PostUpdateView, PostDeleteView, CommentUpdateView, CommentDeleteView
+from .views import CommentCreateView, PostListView, PostDetailView, PostCreateView, PostUpdateView, PostDeleteView, CommentUpdateView, CommentDeleteView, search, PostTagListView
 # Set application namespace
 app_name = 'blog'
 
@@ -30,6 +30,10 @@ urlpatterns = [
     # Logout uses the default view, but we specify a redirect URL after logout
     path('logout/', auth_views.LogoutView.as_view(next_page='/'), name='logout'), 
     path('post/<int:pk>/update/', PostUpdateView.as_view(), name='post_update'),
+    # --- New Functionality URLs ---
+    path('search/', views.search, name='search'),
+    # NEW TAGGING URL:
+    path('tags/<slug:tag_slug>/', views.PostTagListView.as_view(), name='posts_by_tag'),
 
     # Example: Base path for the blog (e.g., list of posts)
     # path('', views.post_list, name='post_list'),
