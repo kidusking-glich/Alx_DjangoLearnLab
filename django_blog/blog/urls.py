@@ -20,7 +20,7 @@ urlpatterns = [
     # Comment Creation (uses a function view, attached to the post PK)
     path('post/<int:pk>/comment/add/', views.add_comment_to_post, name='add_comment'),
     # Comment Editing (uses the comment's PK)
-    path('comment/<int:pk>/edit/', CommentUpdateView.as_view(), name='comment_edit'),
+    path('comment/<int:pk>/update/', CommentUpdateView.as_view(), name='comment_update'),
     # Comment Deletion (uses the comment's PK)
     path('comment/<int:pk>/delete/', CommentDeleteView.as_view(), name='comment_delete'),
     # --- Django Built-in Auth Views ---
