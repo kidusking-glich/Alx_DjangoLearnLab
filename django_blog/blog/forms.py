@@ -5,6 +5,21 @@ from .models import Post
 
 # Get the active User model (usually django.contrib.auth.models.User)
 User = get_user_model()
+# --- Blog Post Form ---
+class PostForm(forms.ModelForm):
+    """
+    Form for creating and updating Post objects.
+    """
+    class Meta:
+        model = Post
+        # We explicitly list 'tags' here to include the field created by TaggableManager
+        fields = ['title', 'content', 'tags'] 
+        widgets = {
+            'title': forms.TextInput(attrs={'placeholder': 'Enter your post title'}),
+            'content': forms.Textarea(attrs={'placeholder': 'Write your blog post content here'}),
+            # Note: Taggit handles the widget for tags automatically,
+            # so no special TagWidget() is strictly necessary here.
+        }
 
 # --- Registration Form ---
 class CustomUserCreationForm(UserCreationForm):
