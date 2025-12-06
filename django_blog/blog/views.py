@@ -30,19 +30,19 @@ class PostDetailView(DetailView):
     template_name = 'blog/post_detail.html'
     context_object_name = 'post'
 
-# class PostCreateView(LoginRequiredMixin, CreateView):
-#     """Allows authenticated users to create a new post."""
-#     model = Post
-#     form_class = PostForm
-#     template_name = 'blog/post_form.html'
-#     # Redirect to the detail page of the newly created post
-#     success_url = reverse_lazy('blog:post_list') 
+class PostCreateView(LoginRequiredMixin, CreateView):
+    """Allows authenticated users to create a new post."""
+    model = Post
+    form_class = PostForm
+    template_name = 'blog/post_form.html'
+    # Redirect to the detail page of the newly created post
+    success_url = reverse_lazy('blog:post_list') 
 
-#     def form_valid(self, form):
-#         # Automatically set the author to the currently logged-in user
-#         form.instance.author = self.request.user
-#         messages.success(self.request, 'Your post has been successfully created!')
-#         return super().form_valid(form)
+    def form_valid(self, form):
+        # Automatically set the author to the currently logged-in user
+        form.instance.author = self.request.user
+        messages.success(self.request, 'Your post has been successfully created!')
+        return super().form_valid(form)
 
 class CommentCreateView(LoginRequiredMixin, CreateView):
     """
