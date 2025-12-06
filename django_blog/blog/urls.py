@@ -1,7 +1,7 @@
 from django.urls import path
 from django.contrib.auth import views as auth_views # Built-in Auth Views
 from . import views
-from .views import PostListView, PostDetailView, PostCreateView, PostUpdateView, PostDeleteView
+from .views import PostListView, PostDetailView, PostCreateView, PostUpdateView, PostDeleteView, CommentUpdateView, CommentDeleteView, add_comment_to_post
 
 # Set application namespace
 app_name = 'blog'
@@ -16,7 +16,13 @@ urlpatterns = [
     # --- Custom Auth Views ---
     path('register/', views.register, name='register'),
     path('profile/', views.profile, name='profile'),
-    
+    # --- Comment URLs ---
+    # Comment Creation (uses a function view, attached to the post PK)
+    path('post/<int:pk>/comment/add/', views.add_comment_to_post, name='add_comment'),
+    # Comment Editing (uses the comment's PK)
+    path('comment/<int:pk>/edit/', CommentUpdateView.as_view(), name='comment_edit'),
+    # Comment Deletion (uses the comment's PK)
+    path('comment/<int:pk>/delete/', CommentDeleteView.as_view(), name='comment_delete'),
     # --- Django Built-in Auth Views ---
     # Login uses the default form and logic, but we map it to our custom template
     path('login/', auth_views.LoginView.as_view(template_name='blog/login.html'), name='login'),

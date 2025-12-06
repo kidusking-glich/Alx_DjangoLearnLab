@@ -3,14 +3,16 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import login
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
-from django.urls import reverse_lazy
+from django.urls import reverse, reverse_lazy
 # New imports for Class-Based Views (CBVs)
 from django.views.generic import ListView, DetailView
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 
-from .forms import CustomUserCreationForm, ProfileEditForm, PostForm
-from .models import Post
+from django.views.generic.edit import CreateView, UpdateView, DeleteView
+
+from .forms import CustomUserCreationForm, ProfileEditForm, PostForm, CommentForm # Ensure CommentForm is imported
+from .models import Post, Comment # Ensure Comment is imported
 # Create your views here.
 
 # --- CRUD Views for Post Model ---
@@ -28,19 +30,76 @@ class PostDetailView(DetailView):
     template_name = 'blog/post_detail.html'
     context_object_name = 'post'
 
-class PostCreateView(LoginRequiredMixin, CreateView):
-    """Allows authenticated users to create a new post."""
-    model = Post
-    form_class = PostForm
-    template_name = 'blog/post_form.html'
-    # Redirect to the detail page of the newly created post
-    success_url = reverse_lazy('blog:post_list') 
+# class PostCreateView(LoginRequiredMixin, CreateView):
+#     """Allows authenticated users to create a new post."""
+#     model = Post
+#     form_class = PostForm
+#     template_name = 'blog/post_form.html'
+#     # Redirect to the detail page of the newly created post
+#     success_url = reverse_lazy('blog:post_list') 
+
+#     def form_valid(self, form):
+#         # Automatically set the author to the currently logged-in user
+#         form.instance.author = self.request.user
+#         messages.success(self.request, 'Your post has been successfully created!')
+#         return super().form_valid(form)
+
+class CommentCreateView(LoginRequiredMixin, CreateView):
+    """
+    Handles creation of a new comment, linked to the parent Post.
+    The form for this view is rendered within post_detail.html.
+    """
+    model = Comment
+    form_class = CommentForm
+    # We do not need a template for this view as it only handles the POST request
 
     def form_valid(self, form):
-        # Automatically set the author to the currently logged-in user
-        form.instance.author = self.request.user
-        messages.success(self.request, 'Your post has been successfully created!')
+        # 1. Get the Post primary key from the URL (path('post/<int:pk>/comment/add/'))
+        post_pk = self.kwargs.get('pk')
+        post = get_object_or_404(Post, pk=post_pk)
+        
+        # 2. Associate the comment with the Post and the logged-in User
+        comment = form.save(commit=False)
+        comment.post = post
+        comment.author = self.request.user
+        comment.save()
+        messages.success(self.request, 'Comment posted successfully!')
         return super().form_valid(form)
+
+    def get_success_url(self):
+        # Redirect back to the post detail page using the Post's PK
+        post_pk = self.kwargs.get('pk')
+        return reverse('blog:post_detail', kwargs={'pk': post_pk})
+
+# --- Comment Update View (Correctly Implemented) ---
+class CommentUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
+    model = Comment
+    form_class = CommentForm
+    template_name = 'blog/comment_form.html'
+
+    # ... (rest of the logic remains the same) ...
+    def get_success_url(self):
+        messages.success(self.request, 'Comment updated successfully!')
+        return reverse('blog:post_detail', kwargs={'pk': self.object.post.pk})
+
+    def test_func(self):
+        comment = self.get_object()
+        return comment.author == self.request.user
+
+
+# --- Comment Delete View (Correctly Implemented) ---
+class CommentDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
+    model = Comment
+    template_name = 'blog/comment_confirm_delete.html'
+
+    # ... (rest of the logic remains the same) ...
+    def get_success_url(self):
+        messages.warning(self.request, 'Comment deleted.')
+        return reverse('blog:post_detail', kwargs={'pk': self.object.post.pk})
+        
+    def test_func(self):
+        comment = self.get_object()
+        return comment.author == self.request.user
 
 class PostUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
     """Allows the author of a post to edit it."""

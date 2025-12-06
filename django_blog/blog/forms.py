@@ -38,3 +38,21 @@ class PostForm(forms.ModelForm):
             'content': forms.Textarea(attrs={'placeholder': 'Write your blog post content here'}),
         }
 
+from .models import Post, Comment # Ensure Comment is imported
+
+# --- Comment Form ---
+class CommentForm(forms.ModelForm):
+    """
+    Form for creating and updating Comment objects.
+    """
+    class Meta:
+        model = Comment
+        # Only allow users to input the content; the rest is set in the view.
+        fields = ['content'] 
+        widgets = {
+            'content': forms.Textarea(attrs={
+                'rows': 4, 
+                'placeholder': 'Join the discussion...'
+            }),
+        }
+
