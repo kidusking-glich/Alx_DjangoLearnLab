@@ -1,8 +1,7 @@
 from django.urls import path
 from django.contrib.auth import views as auth_views # Built-in Auth Views
 from . import views
-from .views import CommentCreateView, PostListView, PostDetailView, PostCreateView, PostUpdateView, PostDeleteView, CommentUpdateView, CommentDeleteView, add_comment_to_post
-
+from .views import CommentCreateView, PostListView, PostDetailView, PostCreateView, PostUpdateView, PostDeleteView, CommentUpdateView, CommentDeleteView
 # Set application namespace
 app_name = 'blog'
 

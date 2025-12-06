@@ -14,6 +14,9 @@ from django.views.generic.edit import CreateView, UpdateView, DeleteView
 from .forms import CustomUserCreationForm, ProfileEditForm, PostForm, CommentForm # Ensure CommentForm is imported
 from .models import Post, Comment # Ensure Comment is imported
 # Create your views here.
+# Imports for Advanced Features (Search/Tagging)
+from django.db.models import Q 
+from taggit.models import Tag
 
 # --- CRUD Views for Post Model ---
 
@@ -167,3 +170,50 @@ def profile(request):
 
     context = {'form': form}
     return render(request, 'blog/profile.html', context)
+
+
+# --- Search View ---
+def search(request):
+    """
+    Handles search queries based on title, content, and tags.
+    """
+    query = request.GET.get('q')
+    results = Post.objects.none()
+    
+    if query:
+        # 1. Search by title and content using Q objects (OR logic)
+        post_results = Post.objects.filter(
+            Q(title__icontains=query) | Q(content__icontains=query)
+        )
+        
+        # 2. Search by tags (using taggit's manager)
+        tag_results = Post.objects.filter(tags__name__icontains=query).distinct()
+        
+        # 3. Combine both querysets (using distinct() prevents duplicates)
+        results = (post_results | tag_results).distinct().order_by('-published_date')
+
+    context = {
+        'query': query,
+        'results': results,
+    }
+    return render(request, 'blog/search_results.html', context)
+
+
+# --- Posts by Tag View ---
+class PostTagListView(ListView):
+    """Displays a list of posts associated with a specific tag."""
+    model = Post
+    template_name = 'blog/post_by_tag.html'
+    context_object_name = 'posts'
+    ordering = ['-published_date']
+
+    def get_queryset(self):
+        # Filter posts where the tag name matches the slug from the URL
+        tag_slug = self.kwargs.get('tag_slug')
+        self.tag_name = tag_slug.replace('-', ' ') # For display in template
+        return Post.objects.filter(tags__slug=tag_slug).order_by('-published_date')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['tag_name'] = self.tag_name
+        return context
