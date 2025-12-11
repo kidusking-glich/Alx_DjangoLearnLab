@@ -4,7 +4,7 @@ from rest_framework.response import Response
 from rest_framework.authtoken.models import Token
 from rest_framework.authtoken.views import ObtainAuthToken
 
-from .serializers import CustomUserRegistrationSerializer, CustomUserProfileSerializer
+from .serializers import CustomUserRegistrationSerializer, CustomUserProfileSerializer, LoginSerializer
 from .models import CustomUser
 
 # Create your views here.
@@ -24,23 +24,21 @@ class RegisterUserView(generics.CreateAPIView):
         }, status=201, headers=self.get_success_headers(serializer.data))
     
 
-class LoginUserView(ObtainAuthToken):
+class LoginUserView(generics.GenericAPIView):
+    serializer_class = LoginSerializer
+    permission_classes = [permissions.AllowAny]
+
     def post(self, request, *args, **kwargs):
-        serializer = self.get_serializer(data = request.data)
+        serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         user = serializer.validated_data['user']
-        token, created = Token.objects.get_or_create(user=user)
+        token = serializer.validated_data['token']
 
-        #Get profile data for the response
+        # Get profile data for the response
         user_serializer = CustomUserProfileSerializer(user)
 
-        # return Response({
-        #     'token': token.key,
-        #     'user': CustomUserProfileSerializer(user).data,
-        # })
-
         return Response({
-            'token': token.key,
+            'token': token,
             'user': user_serializer.data,
         })
 
@@ -52,3 +50,10 @@ class UserProfileView(generics.RetrieveUpdateAPIView):
     def get_object(self):
         # Enforce that users can only view/edit their own profile
         return self.request.user
+
+class TokenRetrievalView(generics.GenericAPIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request, *args, **kwargs):
+        token = Token.objects.get(user=request.user)
+        return Response({'token': token.key})
