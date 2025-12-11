@@ -10,10 +10,19 @@ class CustomUserRegistrationSerializer(serializers.ModelSerializer):
         fields = ('id', 'username', 'email', 'password', 'first_name', 'last_name', 'bio')
 
     def create(self, validated_data):
+        # Retrieve the required 'password' field and hash it
+        password = validated_data.pop('password')
+
+        # Create the user using the remaining validated data
         user = CustomUser.objects.create_user(
             username= validated_data['username'],
-            email = validated_data('email', ''),
-            password=validated_data('password'),
+            email = validated_data.get('email', ''),
+            password=password,
+
+            # Ensure all field retrievals use brackets or .get()
+            first_name=validated_data.get('first_name', ''), 
+            last_name=validated_data.get('last_name', ''), 
+            bio=validated_data.get('bio', None)
         )
         return user 
     
