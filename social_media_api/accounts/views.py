@@ -21,7 +21,7 @@ class RegisterUserView(generics.CreateAPIView):
         return Response({
             'user': CustomUserProfileSerializer(user).data,
             'token': token.key
-        }, status=201)
+        }, status=201, headers=self.get_success_headers(serializer.data))
     
 
 class LoginUserView(ObtainAuthToken):
@@ -31,9 +31,17 @@ class LoginUserView(ObtainAuthToken):
         user = serializer.validated_data['user']
         token, created = Token.objects.get_or_create(user=user)
 
+        #Get profile data for the response
+        user_serializer = CustomUserProfileSerializer(user)
+
+        # return Response({
+        #     'token': token.key,
+        #     'user': CustomUserProfileSerializer(user).data,
+        # })
+
         return Response({
             'token': token.key,
-            'user': CustomUserProfileSerializer(user).data,
+            'user': user_serializer.data,
         })
 
 class UserProfileView(generics.RetrieveUpdateAPIView):
