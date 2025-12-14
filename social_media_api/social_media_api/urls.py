@@ -21,4 +21,6 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     # Route all authentication requests to the accounts app
     path('api/', include('accounts.urls')),
+
+    path('api/', include('posts.urls')),
 ]
