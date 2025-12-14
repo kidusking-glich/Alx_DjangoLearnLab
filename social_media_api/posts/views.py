@@ -16,6 +16,7 @@ from .serializers import PostSerializer, CommentSerializer
 from .permissions import IsAuthorOrReadOnly # (from posts/permissions.py)
 
 # --- Post ViewSet ---
+
 class PostViewSet(viewsets.ModelViewSet):
     """
     Handles CRUD operations for Posts.
@@ -39,6 +40,50 @@ class PostViewSet(viewsets.ModelViewSet):
     def perform_create(self, serializer):
         # Automatically set the author to the currently logged-in user
         serializer.save(author=self.request.user)
+
+    @action(detail=True, methods=['post'], permission_classes=[permissions.IsAuthenticated])
+    def like(self, request, pk=None):
+        post = self.get_object()
+        user = request.user
+        
+        # 1. Create Like
+        like, created = Like.objects.get_or_create(user=user, post=post)
+        
+        if not created:
+            return Response({"detail": "Post already liked."}, status=status.HTTP_409_CONFLICT)
+
+        # 2. Create Notification (Only if the user isn't liking their own post)
+        if post.author != user:
+            Notification.objects.create(
+                recipient=post.author,
+                actor=user,
+                verb="liked",
+                target=post
+            )
+        
+        return Response({"detail": "Post liked.", "likes_count": post.total_likes}, status=status.HTTP_201_CREATED)
+
+    @action(detail=True, methods=['delete'], permission_classes=[permissions.IsAuthenticated])
+    def unlike(self, request, pk=None):
+        post = self.get_object()
+        user = request.user
+        
+        # 1. Delete Like
+        deleted_count, _ = Like.objects.filter(user=user, post=post).delete()
+        
+        if deleted_count == 0:
+            return Response({"detail": "Post was not liked by this user."}, status=status.HTTP_404_NOT_FOUND)
+
+        # 2. OPTIONAL: Delete the associated notification (often skipped, but cleaner)
+        Notification.objects.filter(
+            recipient=post.author,
+            actor=user,
+            verb="liked",
+            content_type=ContentType.objects.get_for_model(Post),
+            object_id=post.id
+        ).delete()
+        
+        return Response({"detail": "Post unliked.", "likes_count": post.total_likes}, status=status.HTTP_204_NO_CONTENT)
 
 # --- Comment ViewSet ---
 class CommentViewSet(viewsets.ModelViewSet):
@@ -87,49 +132,5 @@ class UserFeedAPIView(generics.ListAPIView):
             )
         ).all()
 
-class PostViewSet(viewsets.ModelViewSet):
-    # ... (Existing code: get_queryset, perform_create, etc.)
 
-    @action(detail=True, methods=['post'], permission_classes=[permissions.IsAuthenticated])
-    def like(self, request, pk=None):
-        post = self.get_object()
-        user = request.user
-        
-        # 1. Create Like
-        like, created = Like.objects.get_or_create(user=user, post=post)
-        
-        if not created:
-            return Response({"detail": "Post already liked."}, status=status.HTTP_409_CONFLICT)
 
-        # 2. Create Notification (Only if the user isn't liking their own post)
-        if post.author != user:
-            Notification.objects.create(
-                recipient=post.author,
-                actor=user,
-                verb="liked",
-                target=post
-            )
-        
-        return Response({"detail": "Post liked.", "likes_count": post.total_likes}, status=status.HTTP_201_CREATED)
-
-    @action(detail=True, methods=['delete'], permission_classes=[permissions.IsAuthenticated])
-    def unlike(self, request, pk=None):
-        post = self.get_object()
-        user = request.user
-        
-        # 1. Delete Like
-        deleted_count, _ = Like.objects.filter(user=user, post=post).delete()
-        
-        if deleted_count == 0:
-            return Response({"detail": "Post was not liked by this user."}, status=status.HTTP_404_NOT_FOUND)
-
-        # 2. OPTIONAL: Delete the associated notification (often skipped, but cleaner)
-        Notification.objects.filter(
-            recipient=post.author,
-            actor=user,
-            verb="liked",
-            content_type=ContentType.objects.get_for_model(Post),
-            object_id=post.id
-        ).delete()
-        
-        return Response({"detail": "Post unliked.", "likes_count": post.total_likes}, status=status.HTTP_204_NO_CONTENT)
