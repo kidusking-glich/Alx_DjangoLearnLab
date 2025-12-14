@@ -1,63 +1,57 @@
-from django.shortcuts import render
-from rest_framework import viewsets, permissions, filters
-from django_filters.rest_framework import DjangoFilterBackend
-from .models import Post, Comment
-from .serializers import PostSerializer, CommentSerializer, PostCreateUpdateSerializer
-from .permissions import IsAuthorOrReadOnly
-
-# Create your views here.
 # posts/views.py
 
+from rest_framework import viewsets, permissions, status
+from rest_framework.response import Response
+from rest_framework_nested import routers
 
+from django.shortcuts import get_object_or_404
+from django.db.models import Prefetch
 
-# 1. Post ViewSet
+from .models import Post, Comment
+from .serializers import PostSerializer, CommentSerializer
+from .permissions import IsAuthorOrReadOnly # You must create this file/class
+
+# --- Post ViewSet ---
 class PostViewSet(viewsets.ModelViewSet):
-    # Apply Filtering (Step 5)
-    filter_backends = [DjangoFilterBackend, filters.SearchFilter]
-    filterset_fields = ['author__username', 'created_at']
-    # Apply Searching (Step 5)
-    search_fields = ['title', 'content'] 
-
-    # Permissions: Only authenticated users can access. IsAuthorOrReadOnly applies for PUT/DELETE
+    """
+    Handles CRUD operations for Posts.
+    """
+    serializer_class = PostSerializer
     permission_classes = [permissions.IsAuthenticatedOrReadOnly, IsAuthorOrReadOnly]
 
-    # Customize the queryset
+    # Optimized QuerySet Implementation
     def get_queryset(self):
-        # Select related author data to avoid N+1 queries for author info
-        return Post.objects.select_related('author').prefetch_related('comments')
-
-    # Use different serializers for different actions
-    def get_serializer_class(self):
-        if self.action in ['create', 'update', 'partial_update']:
-            return PostCreateUpdateSerializer
-        return PostSerializer
-
-    # Logic to automatically set the author upon creation
+        """
+        Returns the queryset for the view.
+        Uses select_related to join the 'author' and prefetch_related for 'comments'
+        to solve the N+1 query problem and optimize performance.
+        """
+        # 
+        return Post.objects.select_related('author').prefetch_related(
+            Prefetch(
+                'comments',
+                queryset=Comment.objects.select_related('author') # Optimizes comment author lookup too
+            )
+        ).all()
+        
     def perform_create(self, serializer):
-        # The author is the current authenticated user
+        # Automatically set the author to the currently logged-in user
         serializer.save(author=self.request.user)
 
-
-# 2. Comment ViewSet (Nested within a Post)
+# --- Comment ViewSet ---
 class CommentViewSet(viewsets.ModelViewSet):
+    """
+    Handles CRUD operations for Comments nested under a Post.
+    """
     serializer_class = CommentSerializer
     permission_classes = [permissions.IsAuthenticatedOrReadOnly, IsAuthorOrReadOnly]
-
-    # Custom queryset to fetch comments only for a specific post
+    
+    # Retrieves the post ID from the URL (set by the nested router)
     def get_queryset(self):
-        # We expect 'post_pk' (Post Primary Key) to be passed in the URL (router setup handles this)
-        post_pk = self.kwargs.get('post_pk')
-        if post_pk:
-            # Select related author data to avoid N+1 queries for author info
-            return Comment.objects.filter(post_id=post_pk).select_related('author')
-        
-        # If no post_pk is provided, return all comments (optional, but standard practice)
-        return Comment.objects.all().select_related('author')
+        return Comment.objects.filter(post_id=self.kwargs['post_pk']).select_related('author')
 
-    # Logic to automatically set the post and author upon creation
     def perform_create(self, serializer):
-        post_pk = self.kwargs.get('post_pk')
-        post = Post.objects.get(pk=post_pk)
-
-        # Set the author to the current user and the post to the retrieved post
+        # 1. Get the parent Post object
+        post = get_object_or_404(Post, pk=self.kwargs['post_pk'])
+        # 2. Automatically set the author and the parent post
         serializer.save(author=self.request.user, post=post)
