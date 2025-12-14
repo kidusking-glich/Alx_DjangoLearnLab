@@ -41,8 +41,12 @@ INSTALLED_APPS = [
     #Thired Party apps
     'rest_framework',
     'rest_framework.authtoken',
+
+    'rest_framework_nested',     # Added for Routing
+    'django_filters',         # Added for Filtering
     # Local apps
-    'accounts'
+    'accounts',
+    "posts",
 ]
 #Custom user model
 AUTH_USER_MODEL ='accounts.CustomUser'
