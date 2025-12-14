@@ -52,6 +52,12 @@ INSTALLED_APPS = [
 #Custom user model
 AUTH_USER_MODEL ='accounts.CustomUser'
 
+SECURE_SSL_REDIRECT = True
+
+X_FRAME_OPTIONS = 'DENY'
+
+SECURE_BROWSER_XSS_FILTER = True
+
 # Config REST Framework settings
 REST_FREAMWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
