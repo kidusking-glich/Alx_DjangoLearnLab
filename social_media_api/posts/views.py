@@ -41,13 +41,14 @@ class PostViewSet(viewsets.ModelViewSet):
         # Automatically set the author to the currently logged-in user
         serializer.save(author=self.request.user)
 
+
     @action(detail=True, methods=['post'], permission_classes=[permissions.IsAuthenticated])
     def like(self, request, pk=None):
-        post = self.get_object()
+        post = generics.get_object_or_404(Post, pk=pk)
         user = request.user
         
         # 1. Create Like
-        like, created = Like.objects.get_or_create(user=user, post=post)
+        like, created = Like.objects.get_or_create(user=request.user, post=post)
         
         if not created:
             return Response({"detail": "Post already liked."}, status=status.HTTP_409_CONFLICT)
@@ -65,7 +66,7 @@ class PostViewSet(viewsets.ModelViewSet):
 
     @action(detail=True, methods=['delete'], permission_classes=[permissions.IsAuthenticated])
     def unlike(self, request, pk=None):
-        post = self.get_object()
+        post = generics.get_object_or_404(Post, pk=pk)
         user = request.user
         
         # 1. Delete Like
