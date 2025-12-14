@@ -1,3 +1,5 @@
+
+
 # posts/urls.py
 
 from django.urls import include, path
@@ -20,6 +22,10 @@ urlpatterns = [
     *posts_router.urls,
     # Feed Endpoint
     path('feed/', UserFeedAPIView.as_view(), name='user-feed'),
+    
+    # Explicit URL patterns for liking and unliking posts
+    path('<int:pk>/like/', PostViewSet.as_view({'post': 'like'}), name='post-like'),
+    path('<int:pk>/unlike/', PostViewSet.as_view({'delete': 'unlike'}), name='post-unlike'),
     
     # Post and Comment URLs
     path('', include(router.urls)),
