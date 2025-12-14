@@ -68,6 +68,10 @@ class CustomUserProfileSerializer(serializers.ModelSerializer):
         return obj.following.count()
 
 
+class UserFollowSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CustomUser
+        fields = ['id', 'username']
 
 
 

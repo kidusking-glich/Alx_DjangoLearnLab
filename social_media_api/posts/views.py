@@ -1,6 +1,6 @@
 # posts/views.py
 
-from rest_framework import viewsets, permissions, status
+from rest_framework import viewsets, permissions, status, generics
 from rest_framework.response import Response
 from rest_framework_nested import routers
 
@@ -58,3 +58,29 @@ class CommentViewSet(viewsets.ModelViewSet):
         post = get_object_or_404(Post, pk=self.kwargs['post_pk'])
         # 2. Automatically set the author and the parent post
         serializer.save(author=self.request.user, post=post)
+
+
+class UserFeedAPIView(generics.ListAPIView):
+    """
+    Generates a personalized feed of posts from users the current user follows.
+    """
+    serializer_class = PostSerializer # Use your existing optimized PostSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        # Get the IDs of all users the current user follows
+        following_users = self.request.user.following.all()
+        
+        # Get all posts from those users, ordered by creation date
+        # 
+        queryset = Post.objects.filter(author__in=following_users).order_by('-created_at')
+        
+        # Apply optimization using select_related and prefetch_related
+        return queryset.select_related('author').prefetch_related(
+            Prefetch(
+                'comments',
+                queryset=Comment.objects.select_related('author')
+            )
+        ).all()
+
+        

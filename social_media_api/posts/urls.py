@@ -1,8 +1,9 @@
 # posts/urls.py
 
+from django.urls import include, path
 from rest_framework.routers import DefaultRouter
 from rest_framework_nested import routers
-from .views import PostViewSet, CommentViewSet
+from .views import PostViewSet, CommentViewSet, UserFeedAPIView
 
 # 1. Root Router for Posts
 router = DefaultRouter()
@@ -16,5 +17,12 @@ posts_router.register(r'comments', CommentViewSet, basename='post-comments')
 urlpatterns = [
     # Include both routers
     *router.urls,
-    *posts_router.urls
+    *posts_router.urls,
+    # Feed Endpoint
+    path('feed/', UserFeedAPIView.as_view(), name='user-feed'),
+    
+    # Post and Comment URLs
+    path('', include(router.urls)),
+    path('', include(posts_router.urls)),
+    
 ]

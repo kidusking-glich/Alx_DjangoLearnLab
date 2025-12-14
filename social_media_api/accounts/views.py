@@ -4,8 +4,10 @@ from rest_framework.response import Response
 from rest_framework.authtoken.models import Token
 from rest_framework.authtoken.views import ObtainAuthToken
 
-from .serializers import CustomUserRegistrationSerializer, CustomUserProfileSerializer, LoginSerializer
+from .serializers import CustomUserRegistrationSerializer, CustomUserProfileSerializer, LoginSerializer, UserFollowSerializer
 from .models import CustomUser
+from django.shortcuts import get_object_or_404
+from rest_framework import views, permissions, status
 
 # Create your views here.
 
@@ -57,3 +59,36 @@ class TokenRetrievalView(generics.GenericAPIView):
     def get(self, request, *args, **kwargs):
         token = Token.objects.get(user=request.user)
         return Response({'token': token.key})
+    
+
+class FollowAPIView(views.APIView):
+    """
+    Endpoint to follow or unfollow a user.
+    """
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request, user_id):
+        # The user being followed/unfollowed
+        target_user = get_object_or_404(CustomUser, pk=user_id)
+        current_user = request.user
+
+        if target_user == current_user:
+            return Response(
+                {"detail": "You cannot follow yourself."},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        # Check if already following
+        if current_user.is_following(target_user):
+            # If following, UNFOLLOW
+            current_user.following.remove(target_user)
+            action = 'unfollowed'
+        else:
+            # If not following, FOLLOW
+            current_user.following.add(target_user)
+            action = 'followed'
+        
+        return Response(
+            {"detail": f"Successfully {action} user {target_user.username}", "user": UserFollowSerializer(target_user).data},
+            status=status.HTTP_200_OK
+        )
