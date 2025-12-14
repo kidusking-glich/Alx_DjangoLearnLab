@@ -14,5 +14,15 @@ class CustomUser(AbstractUser):
         blank=True
     )
 
+    user_following = models.ManyToManyField(
+        'self', 
+        symmetrical=False, 
+        related_name='users_following_me', # The reverse relationship (who follows this user)
+        blank=True
+    )
+
+    def is_following(self, user):
+        return self.following.filter(pk=user.pk).exists()
+
     def __str__(self):
         return self.username
