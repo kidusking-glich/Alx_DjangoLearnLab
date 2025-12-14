@@ -63,12 +63,11 @@ class TokenRetrievalView(generics.GenericAPIView):
 
 class FollowAPIView(views.APIView):
     """
-    Endpoint to follow or unfollow a user.
+    Endpoint to explicitly FOLLOW a user. (POST request)
     """
     permission_classes = [permissions.IsAuthenticated]
 
     def post(self, request, user_id):
-        # The user being followed/unfollowed
         target_user = get_object_or_404(CustomUser, pk=user_id)
         current_user = request.user
 
@@ -78,17 +77,45 @@ class FollowAPIView(views.APIView):
                 status=status.HTTP_400_BAD_REQUEST
             )
 
-        # Check if already following
-        if current_user.is_following(target_user):
-            # If following, UNFOLLOW
-            current_user.following.remove(target_user)
-            action = 'unfollowed'
-        else:
-            # If not following, FOLLOW
-            current_user.following.add(target_user)
-            action = 'followed'
+        if current_user.user_following.filter(pk=target_user.pk).exists():
+            return Response(
+                {"detail": "You are already following this user."},
+                status=status.HTTP_409_CONFLICT # Conflict status for already followed
+            )
+
+        current_user.user_following.add(target_user)
         
         return Response(
-            {"detail": f"Successfully {action} user {target_user.username}", "user": UserFollowSerializer(target_user).data},
-            status=status.HTTP_200_OK
+            {"detail": f"Successfully followed user {target_user.username}"},
+            status=status.HTTP_201_CREATED
+        )
+
+class UnfollowAPIView(views.APIView):
+    """
+    Endpoint to explicitly UNFOLLOW a user. (DELETE request)
+    """
+    permission_classes = [permissions.IsAuthenticated]
+
+    def delete(self, request, user_id):
+        target_user = get_object_or_404(CustomUser, pk=user_id)
+        current_user = request.user
+
+        if target_user == current_user:
+            return Response(
+                {"detail": "You cannot unfollow yourself."},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        # Check if following before attempting to remove
+        if not current_user.user_following.filter(pk=target_user.pk).exists():
+            return Response(
+                {"detail": "You are not following this user."},
+                status=status.HTTP_404_NOT_FOUND # Not found, as the relationship doesn't exist
+            )
+
+        current_user.user_following.remove(target_user)
+        
+        return Response(
+            {"detail": f"Successfully unfollowed user {target_user.username}"},
+            status=status.HTTP_204_NO_CONTENT # Standard status for successful deletion
         )
